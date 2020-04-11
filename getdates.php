@@ -13,8 +13,8 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     $param = urldecode($_SERVER['QUERY_STRING']);
    
     $connect = new Connection;
-    $query = "SELECT * FROM timeline;";
-    $returnedRow = $connect->fetchtData($query);
+    $query = "SELECT * FROM timeline";
+    $connect->fetchData($query);
     
    
 }
