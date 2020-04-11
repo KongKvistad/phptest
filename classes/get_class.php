@@ -8,10 +8,10 @@ class Connection {
 
     public function __construct()
     {
-        $this->dbServername = "localhost";
-        $this->dbUsername = "root";
-        $this->dbPassword = "rootymcroot"; #rootymcroot
-        $this->dbName = "schoolproj";
+        $this->dbServername = "localhost"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
+        $this->dbUsername = "root"; #webproject if aws database
+        $this->dbPassword = "rootymcroot"; #rootymcroot if aws database. 
+        $this->dbName = "webproject2";
     }
 
     
@@ -32,7 +32,9 @@ class Connection {
         }
         
     }
-
+    public function readAdminToken($token){
+        
+    }
 
     public function fetchData($query) {
         $result = mysqli_query($this->makeCon(), $query);
@@ -40,5 +42,21 @@ class Connection {
             echo json_encode($row);
             mysqli_close($this->makeCon());
     }
-}
+
+    public function postData($query){
+        if (mysqli_query($this->makeCon(), $query)){    
+            return $this->getLast();
+            
+        }
+    }
+
+    public function getLast(){
+        $result = mysqli_query($this->makeCon(), "SELECT * FROM students WHERE s_id = (SELECT MAX(s_id) FROM students);");
+        $row = mysqli_fetch_assoc($result);
+        mysqli_close($this->makeCon());    
+        return $row;
+           
+    }
+}   
+
 ?>

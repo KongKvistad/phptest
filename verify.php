@@ -2,21 +2,21 @@
 
 
 
-include_once('classes/get_class.php');
-
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
 
 
-
 if($_SERVER["REQUEST_METHOD"] == "GET") {
     
-    $connect = new Connection;
-    $query = "SELECT * FROM companies";
-    $connect->fetchData($query);
-
+    $param = urldecode($_SERVER['QUERY_STRING']);
+    
+    $queries = array();
+    parse_str($_SERVER['QUERY_STRING'], $queries);
+    echo $queries["token"];
+   
 }
+
 
 
 ?>
