@@ -13,7 +13,7 @@ header("Content-Type: application/json; charset=UTF-8");
 if($_SERVER["REQUEST_METHOD"] == "GET") {
     
     $connect = new Connection;
-    $query = "SELECT * FROM companies";
+    $query = "SELECT * FROM timeline";
     $connect->fetchData($query);
 
 }
