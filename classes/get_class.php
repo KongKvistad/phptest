@@ -11,7 +11,7 @@ class Connection {
         $this->dbServername = "localhost"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
         $this->dbUsername = "root"; #webproject if aws database
         $this->dbPassword = "rootymcroot"; #rootymcroot if aws database. 
-        $this->dbName = "webproject2";
+        $this->dbName = "webprosjekt2";
     }
 
     
