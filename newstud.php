@@ -21,10 +21,10 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     $query = "INSERT INTO students (`email`, `name`, `programme`) VALUES ('$param', 'testy', 'BWU')";
     $returnedRow = $connect->postData($query);
     
-    print_r($returnedRow);
+    print_r($param);
 
-    $token = genToken($returnedRow);
-    sendToken($token, $returnedRow);
+    // $token = genToken($returnedRow);
+    // sendToken($token, $returnedRow);
    
 }
 
