@@ -51,7 +51,7 @@ class Connection {
     }
 
     public function getLast(){
-        $result = mysqli_query($this->makeCon(), "SELECT * FROM students WHERE s_id = (SELECT MAX(s_id) FROM students);");
+        $result = mysqli_query($this->makeCon(), "SELECT * FROM student WHERE studentNo = (SELECT MAX(studentNo) FROM student);");
         $row = mysqli_fetch_assoc($result);
         mysqli_close($this->makeCon());    
         return $row;
