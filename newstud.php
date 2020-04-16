@@ -17,7 +17,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
    
     
     $connect = new Connection;
-    $query = "INSERT INTO student (`name`, `email`, `studyProgramme`) VALUES ('testy', '$param', 'BWU')";
+    $query = "INSERT INTO student (`name`, `email`, `studyProgramme`, `password`) VALUES ('testy', '$param', 'BWU', 'student')";
     $returnedRow = $connect->postData($query);
     
     print_r($returnedRow);
