@@ -23,8 +23,8 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     
     print_r($param);
 
-    // $token = genToken($returnedRow);
-    // sendToken($token, $returnedRow);
+    $token = genToken($returnedRow);
+    sendToken($token, $returnedRow);
    
 }
 
