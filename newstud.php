@@ -15,13 +15,12 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     
     $param = urldecode($_SERVER['QUERY_STRING']);
    
-    // $token = genToken($param);
-    // sendToken($token);
+    
     $connect = new Connection;
-    $query = "INSERT INTO student (`email`, `name`, `programme`) VALUES ('$param', 'testy', 'BWU')";
+    $query = "INSERT INTO student (`name`, `email`, `studyProgramme`) VALUES ('testy', '$param', 'BWU')";
     $returnedRow = $connect->postData($query);
     
-    print_r($param);
+    print_r($returnedRow);
 
     $token = genToken($returnedRow);
     sendToken($token, $returnedRow);
