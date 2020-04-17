@@ -20,7 +20,9 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     $param = urldecode($_SERVER['QUERY_STRING']);
     
 
-    print_r($param);
+    $queries = array();
+    parse_str($_SERVER['QUERY_STRING'], $queries);
+    echo $queries["studentNo"];
     
     // $connect = new Connection;
     
