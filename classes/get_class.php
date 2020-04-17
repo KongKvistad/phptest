@@ -43,7 +43,15 @@ class Connection {
             mysqli_close($this->makeCon());
     }
 
-    public function postData($query){
+    public function postData($query) {
+        $result = mysqli_query($this->makeCon(), $query);
+        $row = mysqli_fetch_row($result);
+        echo json_encode($row);
+        mysqli_close($this->makeCon());
+        
+    }
+
+    public function newStud($query){
         if (mysqli_query($this->makeCon(), $query)){    
             return $this->getLast();
             
