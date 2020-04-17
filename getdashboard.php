@@ -22,7 +22,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
 
     $queries = array();
     parse_str($_SERVER['QUERY_STRING'], $queries);
-    echo $queries["studentNo"];
+    echo $queries;
     
     // $connect = new Connection;
     
