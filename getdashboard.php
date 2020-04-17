@@ -17,21 +17,23 @@ header("Content-Type: application/json; charset=UTF-8");
 
 if($_SERVER["REQUEST_METHOD"] == "GET") {
     
-    $param = urldecode($_SERVER['QUERY_STRING']);
-    
 
-    $queries = array();
-    parse_str($_SERVER['QUERY_STRING'], $queries);
-    echo $queries;
+    $param = array();
+    parse_str($_SERVER['QUERY_STRING'], $param);
     
-    // $connect = new Connection;
+    $userType = array_keys($param)[0];
+
+    $userNo = array_values($param)[0];
+
+    
+    $connect = new Connection;
     
     // if($userType === "employeeNo"){
-    //     $connect->dashAdmin($userNo)
+    //      $connect->dashAdmin($userNo);
     // }
-    // if($userType === "studentNo"){
-    //     $connect->dashStudent($userNo)
-    // }
+    if($userType === "studentNo"){
+        $connect->dashStudent($userNo);
+    }
     
 
    

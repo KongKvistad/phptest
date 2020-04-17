@@ -1,5 +1,8 @@
 <?php
 
+
+// needed for AWS LAMBA CRONJOBS
+
 include_once('classes/get_class.php');
 
 

@@ -8,8 +8,8 @@ class Connection {
 
     public function __construct()
     {
-        $this->dbServername = "localhost"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
-        $this->dbUsername = "root"; #webproject if aws database
+        $this->dbServername = "13.48.129.131"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
+        $this->dbUsername = "webproject"; #webproject if aws database
         $this->dbPassword = "rootymcroot"; #rootymcroot if aws database. 
         $this->dbName = "webprosjekt2";
     }
@@ -32,9 +32,7 @@ class Connection {
         }
         
     }
-    public function readAdminToken($token){
-        
-    }
+   
 
     public function fetchData($query) {
         $result = mysqli_query($this->makeCon(), $query);
@@ -50,6 +48,19 @@ class Connection {
         mysqli_close($this->makeCon());
         
     }
+
+    public function dashStudent($userNo){
+        $res = mysqli_query($this->makeCon(), "SELECT internships FROM endDates");
+
+
+        $dataObj->timeline->internships = $res;
+        $myJSON = json_encode($dataObj);
+
+        echo $myJSON;
+        
+        
+    }
+
 
     public function newStud($query){
         if (mysqli_query($this->makeCon(), $query)){    
