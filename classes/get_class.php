@@ -9,8 +9,8 @@ class Connection {
     public function __construct()
     {
         $this->dbServername = "localhost"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
-        $this->dbUsername = "webproject"; #webproject if aws database
-        $this->dbPassword = "rootymcroot"; #rootymcroot if aws database. 
+        $this->dbUsername = "webproject"; 
+        $this->dbPassword = "rootymcroot"; 
         $this->dbName = "webprosjekt2";
     }
 
@@ -50,17 +50,84 @@ class Connection {
     }
 
     public function dashStudent($userNo){
-        $res = mysqli_query($this->makeCon(), "SELECT internships FROM endDates");
+        $mentorRes = mysqli_query($this->makeCon(), 
+        "SELECT m.name, m.email, m.phoneNo FROM student s
+        INNER JOIN mentor m on s.mentorID = m.mentorId
+        WHERE s.studentNo = $userNo");
+        $mentorData = mysqli_fetch_assoc($mentorRes);
+        
+        $dateRes = mysqli_query($this->makeCon(), "SELECT * FROM endDates");
+        $endDate = mysqli_fetch_assoc($dateRes);
+
+        
+
+        $dataObj->timeline->internships->endDate = $endDate["internships"];
+        $dataObj->timeline->projects->endDate = $endDate["projects"];
+        $dataObj->timeline->internships->mentor = $mentorData;
+        
+        $coordRes = mysqli_query($this->makeCon(), "SELECT name, email FROM admin LIMIT 1");
+        $coordinator = mysqli_fetch_assoc($coordRes);
 
 
-        $dataObj->timeline->internships = $res;
+        $dataObj->timeline->projects->coordinator = $coordinator;
+        
+        
+        $dataObj->timeline->internships->events = [];
+        $dataObj->timeline->projects->events = [];
+
+        
+
+
+        $eventRes = mysqli_query($this->makeCon(), "SELECT * FROM timeline");
+        while ($row = mysqli_fetch_assoc($eventRes)) {
+            if($row["type"] === "Internship"){
+                array_push($dataObj->timeline->internships->events, $row);  
+            }
+            if($row["type"] === "Bachelor"){
+                array_push($dataObj->timeline->projects->events, $row);  
+            }
+    
+        }
+        
+        
         $myJSON = json_encode($dataObj);
 
-        echo $myJSON;
+        return $myJSON;
         
-        
+        mysqli_close($this->makeCon());
     }
 
+    public function mpStudent($userNo){
+        
+        
+        $dataObj->entries->internships = [];
+        
+        
+        $internships = mysqli_query($this->makeCon(), "SELECT * FROM internship");
+        while ($row = mysqli_fetch_assoc($internships)) {
+            array_push($dataObj->entries->internships, $row);  
+    
+        }
+
+        $dataObj->entries->projects = [];
+        $projArr = [];
+        $projects = mysqli_query($this->makeCon(), "SELECT companyName, title, startDate, endDate, description, status FROM projects");
+        while ($row1 = mysqli_fetch_assoc($projects)) {
+            array_push($dataObj->entries->projects, $row1);  
+            
+    
+        }     
+       
+        
+     
+        
+        $myJSON = json_encode($dataObj);
+
+        return $myJSON;
+        
+        mysqli_close($this->makeCon());
+    }
+    
 
     public function newStud($query){
         if (mysqli_query($this->makeCon(), $query)){    

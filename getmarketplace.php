@@ -32,7 +32,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     //      $connect->dashAdmin($userNo);
     // }
     if($userType === "studentNo"){
-        echo $connect->dashStudent($userNo);
+        echo $connect->mpStudent($userNo);
     }
     
     
