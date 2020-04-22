@@ -8,7 +8,7 @@ class Connection {
 
     public function __construct()
     {
-        $this->dbServername = "localhost"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
+        $this->dbServername = "13.48.129.131"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
         $this->dbUsername = "webproject"; 
         $this->dbPassword = "rootymcroot"; 
         $this->dbName = "webprosjekt2";
@@ -58,7 +58,7 @@ class Connection {
 
     public function postData($query) {
         $result = mysqli_query($this->makeCon(), $query);
-        $row = mysqli_fetch_row($result);
+        $row = mysqli_fetch_assoc($result);
         echo json_encode($row);
         mysqli_close($this->makeCon());
         
