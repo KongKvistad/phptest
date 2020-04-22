@@ -32,7 +32,8 @@ class Connection {
         }
         
     }
-   
+    
+    
 
     public function fetchData($query) {
         $result = mysqli_query($this->makeCon(), $query);
