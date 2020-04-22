@@ -8,7 +8,7 @@ class Connection {
 
     public function __construct()
     {
-        $this->dbServername = "localhost"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
+        $this->dbServername = "13.48.129.131"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
         $this->dbUsername = "webproject"; 
         $this->dbPassword = "rootymcroot"; 
         $this->dbName = "webprosjekt2";
