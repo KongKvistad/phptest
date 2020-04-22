@@ -8,7 +8,7 @@ class Connection {
 
     public function __construct()
     {
-        $this->dbServername = "localhost"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
+        $this->dbServername = "13.48.129.131"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
         $this->dbUsername = "webproject"; 
         $this->dbPassword = "rootymcroot"; 
         $this->dbName = "webprosjekt2";
@@ -40,6 +40,20 @@ class Connection {
             echo json_encode($row);
             mysqli_close($this->makeCon());
     }
+    
+    
+    public function fetchPrio($query) {
+        $resArr = [];
+        $result = mysqli_query($this->makeCon(), $query);
+        
+        while ($row = mysqli_fetch_assoc($result)) {
+            array_push($resArr, $row);    
+        }
+        
+        return $resArr;
+
+        mysqli_close($this->makeCon());
+    }
 
     public function postData($query) {
         $result = mysqli_query($this->makeCon(), $query);
@@ -49,18 +63,28 @@ class Connection {
         
     }
 
+    
     public function dashStudent($userNo){
+        $dataObj = new stdClass();
+        $dataObj->timeline = new stdClass();
+        $dataObj->timeline->internships = new stdClass();
+        $dataObj->timeline->projects = new stdClass();
+        
+        
+        
         $mentorRes = mysqli_query($this->makeCon(), 
         "SELECT m.name, m.email, m.phoneNo FROM student s
         INNER JOIN mentor m on s.mentorID = m.mentorId
         WHERE s.studentNo = $userNo");
         $mentorData = mysqli_fetch_assoc($mentorRes);
         
-        $dateRes = mysqli_query($this->makeCon(), "SELECT * FROM endDates");
+
+        
+        $dateRes = mysqli_query($this->makeCon(), "SELECT UNIX_TIMESTAMP(internships) as internships, UNIX_TIMESTAMP(projects) as projects  FROM `endDates`");
         $endDate = mysqli_fetch_assoc($dateRes);
 
         
-
+        
         $dataObj->timeline->internships->endDate = $endDate["internships"];
         $dataObj->timeline->projects->endDate = $endDate["projects"];
         $dataObj->timeline->internships->mentor = $mentorData;
@@ -78,7 +102,7 @@ class Connection {
         
 
 
-        $eventRes = mysqli_query($this->makeCon(), "SELECT * FROM timeline");
+        $eventRes = mysqli_query($this->makeCon(), "SELECT eventID, title, place, category, type, UNIX_TIMESTAMP(time) as time from timeline");
         while ($row = mysqli_fetch_assoc($eventRes)) {
             if($row["type"] === "Internship"){
                 array_push($dataObj->timeline->internships->events, $row);  
@@ -97,9 +121,12 @@ class Connection {
         mysqli_close($this->makeCon());
     }
 
+    
     public function mpStudent($userNo){
         
-        
+        $dataObj = new stdClass();
+        $dataObj->entries = new stdClass();
+
         $dataObj->entries->internships = [];
         
         
@@ -118,8 +145,6 @@ class Connection {
     
         }     
        
-        
-     
         
         $myJSON = json_encode($dataObj);
 
