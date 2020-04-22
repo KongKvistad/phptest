@@ -11,16 +11,14 @@ header("Content-Type: application/json; charset=UTF-8");
 
 
 
-if($_SERVER["REQUEST_METHOD"] == "GET") {
+if($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    $param = urldecode($_SERVER['QUERY_STRING']);
-   
     
+    
+    // du trenger denne for å snakke med databasen. benytt så enten eksisterende metoder eller skriv
+    // en ny
     $connect = new Connection;
-    $query = "INSERT INTO student (`name`, `email`, `studyProgramme`, `password`) VALUES ('testy', '$param', 'BWU', 'student')";
-    $returnedRow = $connect->postData($query);
     
-    print_r($returnedRow);
 
    
 }
