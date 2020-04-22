@@ -58,7 +58,7 @@ class Connection {
 
     public function postData($query) {
         $result = mysqli_query($this->makeCon(), $query);
-        $row = mysqli_fetch_row($result);
+        $row = mysqli_fetch_assoc($result);
         echo json_encode($row);
         mysqli_close($this->makeCon());
         
