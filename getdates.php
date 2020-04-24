@@ -17,7 +17,8 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
    
     $connect = new Connection;
     $query = "SELECT * FROM timeline";
-    $connect->fetchData($query);
+    $res = $connect->fetchData($query);
+    echo json_encode($res);
     
    
 }

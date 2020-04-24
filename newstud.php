@@ -17,13 +17,13 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
    
     
     $connect = new Connection;
-    $query = "INSERT INTO student (`name`, `email`, `studyProgramme`, `password`) VALUES ('testy', '$param', 'BWU', 'student')";
+    $query = "INSERT INTO student (`name`, `email`, `studyProgramme`, `password`) VALUES ('testperson', '$param', 'BWU', 'student')";
     $returnedRow = $connect->newStud($query);
     
     print_r($returnedRow);
 
-    // $token = genToken($returnedRow);
-    // sendToken($token, $returnedRow);
+    $token = genToken($returnedRow);
+    sendToken($token, $returnedRow);
    
 }
 

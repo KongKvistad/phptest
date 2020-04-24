@@ -28,12 +28,9 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     
     $connect = new Connection;
     
-    // if($userType === "employeeNo"){
-    //      $connect->dashAdmin($userNo);
-    // }
-    if($userType === "studentNo"){
-        echo $connect->mpStudent($userNo);
-    }
+    
+        echo $connect->getMp($userType);
+    
     
     
 

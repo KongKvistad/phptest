@@ -69,9 +69,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $endDate = $_POST['end-date'];
     $description = $_POST['description'];
     $noOfstudents = $_POST['noofstudents'];
+ 
 
-    $query = "INSERT INTO internship(`companyName`, `title`, `author`, `startDate`, `endDate`, `description`, `noOfstudents`) VALUES('$company', '$title', '$author', $startDate, $endDate, '$description', '$noOfstudents')";
-    $connect->postData($query);
+    $query2 = "INSERT INTO internship (`companyName`, `title`, `author`, `startDate`, `endDate`, `description`, `noOfStudents`, `status`, `internID`) VALUES ('Tesla', 'helllo', 'elon musk', '2020-04-10', '2020-04-30', 'jkalsdhasjkl\', '2', 'Not Approved', NULL)";
+
+    $query = "INSERT INTO internship(`companyName`, `title`, `author`, `startDate`, `endDate`, `description`, `noOfstudents`) VALUES($company, $title, $author, $startDate, $endDate, $description, $noOfstudents)";
+    $connect->postData($query2);
     
     //$connect->close();
    

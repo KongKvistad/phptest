@@ -37,8 +37,8 @@ class Connection {
 
     public function fetchData($query) {
         $result = mysqli_query($this->makeCon(), $query);
-        $row = mysqli_fetch_row($result);
-            echo json_encode($row);
+        $row = mysqli_fetch_assoc($result);
+        return $row;
             mysqli_close($this->makeCon());
     }
     
@@ -57,9 +57,12 @@ class Connection {
     }
 
     public function postData($query) {
-        $result = mysqli_query($this->makeCon(), $query);
-        $row = mysqli_fetch_assoc($result);
-        echo json_encode($row);
+        
+            if (mysqli_query($this->makeCon(), $query)){    
+                echo "sucess";
+                
+            }
+        
         mysqli_close($this->makeCon());
         
     }
@@ -123,7 +126,7 @@ class Connection {
     }
 
     
-    public function mpStudent($userNo){
+    public function getMp($userType){
         
         $dataObj = new stdClass();
         $dataObj->entries = new stdClass();
@@ -131,7 +134,7 @@ class Connection {
         $dataObj->entries->internships = [];
         
         
-        $internships = mysqli_query($this->makeCon(), "SELECT * FROM internship");
+        $internships = mysqli_query($this->makeCon(), "SELECT internID as id, author, companyName, title, startDate, endDate, tags, description, status FROM internship WHERE status = 'Approved'");
         while ($row = mysqli_fetch_assoc($internships)) {
             array_push($dataObj->entries->internships, $row);  
     
@@ -139,13 +142,26 @@ class Connection {
 
         $dataObj->entries->projects = [];
         $projArr = [];
-        $projects = mysqli_query($this->makeCon(), "SELECT companyName, title, startDate, endDate, description, status FROM projects");
+        $projects = mysqli_query($this->makeCon(), "SELECT projectID as id, author, companyName, title, startDate, endDate, tags, description, status FROM projects WHERE status = 'Approved'");
         while ($row1 = mysqli_fetch_assoc($projects)) {
             array_push($dataObj->entries->projects, $row1);  
             
     
         }     
-       
+        
+        if($userType === "employeeNo"){
+            $dataObj->entries->pitched = [];
+            $dataObj->entries->students = [];
+            $dataObj->entries->companies = [];
+
+            $pitched = mysqli_query($this->makeCon(), "SELECT internID as id, author, companyName, title, startDate, endDate, tags, description, status FROM internship WHERE status = 'Not Approved'");
+            while ($row1 = mysqli_fetch_assoc($pitched)) {
+                array_push($dataObj->entries->pitched, $row1);  
+                
+        
+            } 
+
+        }
         
         $myJSON = json_encode($dataObj);
 
