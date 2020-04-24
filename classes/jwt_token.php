@@ -45,7 +45,7 @@ function sendToken($token, $row){
     CURLOPT_CUSTOMREQUEST => "POST",
     // alternative string if validating and redirecting through verify.php
     // CURLOPT_POSTFIELDS => "{\"sender\":{\"name\":\"NTNU marketplace\",\"email\":\"eirik.kvistad@gmail.com\"},\"to\":[{\"email\":\"".$row['email']."\",\"name\":\"".$row['email']."\"}],\"textContent\":\"Please click the provided link to login to the marketplace: "."http://192.168.64.3/php-aws-codepipeline/verify.php?token=".$token." \",\"subject\":\"NTNU Marketplace login\",\"replyTo\":{\"email\":\"eirik.kvistad@gmail.com\",\"name\":\"do not reply\"}}",
-    CURLOPT_POSTFIELDS => "{\"sender\":{\"name\":\"NTNU marketplace\",\"email\":\"eirik.kvistad@gmail.com\"},\"to\":[{\"email\":\"".$row['email']."\",\"name\":\"".$row['email']."\"}],\"textContent\":\"Please click the provided link to login to the marketplace: "."http://localhost:3000/".$token." \",\"subject\":\"NTNU Marketplace login\",\"replyTo\":{\"email\":\"eirik.kvistad@gmail.com\",\"name\":\"do not reply\"}}",
+    CURLOPT_POSTFIELDS => "{\"sender\":{\"name\":\"NTNU marketplace\",\"email\":\"sarahvb@stud.ntnu.no\"},\"to\":[{\"email\":\"".$row['email']."\",\"name\":\"".$row['email']."\"}],\"textContent\":\"Please click the provided link to login to the marketplace: "."http://localhost:3000/".$token." \",\"subject\":\"NTNU Marketplace login\",\"replyTo\":{\"email\":\"eirik.kvistad@gmail.com\",\"name\":\"do not reply\"}}",
     CURLOPT_HTTPHEADER => array(
         "accept: application/json",
         "api-key: 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",

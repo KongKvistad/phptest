@@ -6,6 +6,9 @@ class Connection {
     private $dbName;
     private $conChk;
 
+
+    
+
     public function __construct()
     {
         $this->dbServername = "13.48.129.131"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
@@ -157,6 +160,12 @@ class Connection {
             $pitched = mysqli_query($this->makeCon(), "SELECT internID as id, author, companyName, title, startDate, endDate, tags, description, status FROM internship WHERE status = 'Not Approved'");
             while ($row1 = mysqli_fetch_assoc($pitched)) {
                 array_push($dataObj->entries->pitched, $row1);  
+                
+        
+            }
+            $students = mysqli_query($this->makeCon(), "SELECT * from student");
+            while ($row = mysqli_fetch_assoc($students)) {
+                array_push($dataObj->entries->students, $row);  
                 
         
             } 
