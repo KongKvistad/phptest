@@ -152,10 +152,13 @@ class Connection {
     
         }     
         
+        // admins have access to extra tabs
         if($userType === "employeeNo"){
             $dataObj->entries->pitched = [];
             $dataObj->entries->students = [];
             $dataObj->entries->companies = [];
+            
+
 
             $pitched = mysqli_query($this->makeCon(), "SELECT internID as id, author, companyName, title, startDate, endDate, tags, description, status FROM internship WHERE status = 'Not Approved'");
             while ($row1 = mysqli_fetch_assoc($pitched)) {
@@ -163,12 +166,42 @@ class Connection {
                 
         
             }
-            $students = mysqli_query($this->makeCon(), "SELECT * from student");
+            $students = mysqli_query($this->makeCon(), "SELECT studentNo as id, studyProgramme, name from student");
             while ($row = mysqli_fetch_assoc($students)) {
+                $studno = $row["id"];
+
+                $internprios = $this->fetchPrio("SELECT i.title, i.internID as id FROM `internpriorities` p
+                INNER JOIN internship i on i.internID = p.priorityOne OR i.internID = p.priorityTwo OR i.internID = p.priorityThree
+                WHERE p.studentNo = $studno");
+
+                $projprios = $this->fetchPrio("SELECT p.title, p.projectID as id FROM `projectpriorities` j
+                INNER JOIN projects p on p.projectID = j.priorityOne OR p.projectID = j.priorityTwo OR p.projectID = j.priorityThree 
+                WHERE j.studentNo = $studno");
+
+               
+                $row["priorities"] = ["internships" => $internprios, "projects" => $projprios];
                 array_push($dataObj->entries->students, $row);  
+            }
+            $companies = mysqli_query($this->makeCon(), "SELECT name from company");
+            while ($row = mysqli_fetch_assoc($companies)) {
+                $name = $row["name"];
                 
-        
-            } 
+
+                $projprios = $this->fetchPrio("SELECT s.name, s.studentNo as id FROM `compProjectPrio` c
+                INNER JOIN student s on s.studentNo = c.priorityOne OR s.studentNo = c.priorityTwo OR s.studentNO = c.priorityThree 
+                WHERE c.companyName = '$name'");
+
+                $internprios = $this->fetchPrio("SELECT s.name, s.studentNo as id FROM `compInternPrio` c
+                INNER JOIN student s on s.studentNo = c.priorityOne OR s.studentNo = c.priorityTwo OR s.studentNO = c.priorityThree 
+                WHERE c.companyName = '$name'");
+
+                $row["priorities"] = ["internships" => $internprios, "projects" => $projprios];
+
+                array_push($dataObj->entries->companies, $row);  
+            
+            }
+
+            
 
         }
         
@@ -182,7 +215,12 @@ class Connection {
 
     public function newStud($query){
         if (mysqli_query($this->makeCon(), $query)){    
-            return $this->getLast();
+            $newStud = $this->getLast();
+            $studNo = $newStud["studentNo"];
+            $this->postData("INSERT INTO `internpriorities` (`studentNo`, `priorityOne`, `priorityTwo`, `priorityThree`) VALUES ($studNo, NULL, NULL, NULL)");
+            $this->postData("INSERT INTO `projectpriorities` (`studentNo`, `priorityOne`, `priorityTwo`, `priorityThree`) VALUES ($studNo, NULL, NULL, NULL)");
+            
+            return $newStud;
             
         }
     }
