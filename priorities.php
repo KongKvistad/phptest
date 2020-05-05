@@ -61,16 +61,35 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
 
     $dataObj->internships = fillEmpty($internPrio);
     
+
+    // only fetch group prios if gorup exists
+    $hasGroup = $connect->fetchData("SELECT groupNo FROM `projectgroups` WHERE leader = $userNo or member1 = $userNo or member2 = $userNo")["groupNo"];
+    if($hasGroup){
+        $dataObj->groupNo = $hasGroup;
+
+
+        $projPrio = $connect->fetchPrio(
+            "SELECT p.title, p.projectID as id FROM `projectpriorities` j
+            INNER JOIN projects p on p.projectID = j.priorityOne OR p.projectID = j.priorityTwo OR p.projectID = j.priorityThree 
+            WHERE j.GroupNo = $hasGroup"
+        );
+
+
+        $dataObj->projects = fillEmpty($projPrio);
+    } else {
+        $dataObj->projects = "you don't have a group yet";
+    }
+
+
+
     
-    $projPrio = $connect->fetchPrio(
-        "SELECT p.title, p.projectID as id FROM `projectpriorities` j
-        INNER JOIN projects p on p.projectID = j.priorityOne OR p.projectID = j.priorityTwo OR p.projectID = j.priorityThree 
-        WHERE j.studentNo = $userNo"
-    );
     
     
     
-    $dataObj->projects = fillEmpty($projPrio);
+    
+    
+    
+    
     
     echo json_encode($dataObj);
    

@@ -28,12 +28,13 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     
     $connect = new Connection;
     
-    // if($userType === "employeeNo"){
-    //      $connect->dashAdmin($userNo);
-    // }
-    if($userType === "studentNo"){
-        echo $connect->dashStudent($userNo);
-    }
+   
+        echo $connect->dashboard($userType, $userNo);
+    
+
+    
+      
+    
     
     
 

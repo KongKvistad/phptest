@@ -71,7 +71,7 @@ class Connection {
     }
 
     
-    public function dashStudent($userNo){
+    public function dashboard($userType, $userNo){
         $dataObj = new stdClass();
         $dataObj->timeline = new stdClass();
         $dataObj->timeline->internships = new stdClass();
@@ -79,36 +79,21 @@ class Connection {
         
         
         
-        $mentorRes = mysqli_query($this->makeCon(), 
-        "SELECT m.name, m.email, m.phoneNo FROM student s
-        INNER JOIN mentor m on s.mentorID = m.mentorId
-        WHERE s.studentNo = $userNo");
-        $mentorData = mysqli_fetch_assoc($mentorRes);
-        
+       
 
         
+        //fetch enddates
         $dateRes = mysqli_query($this->makeCon(), "SELECT UNIX_TIMESTAMP(internships) as internships, UNIX_TIMESTAMP(projects) as projects  FROM `endDates`");
-        $endDate = mysqli_fetch_assoc($dateRes);
-
-        
-        
+        $endDate = mysqli_fetch_assoc($dateRes); 
         $dataObj->timeline->internships->endDate = $endDate["internships"];
         $dataObj->timeline->projects->endDate = $endDate["projects"];
-        $dataObj->timeline->internships->mentor = $mentorData;
-        
-        $coordRes = mysqli_query($this->makeCon(), "SELECT name, email FROM admin LIMIT 1");
-        $coordinator = mysqli_fetch_assoc($coordRes);
-
-
-        $dataObj->timeline->projects->coordinator = $coordinator;
-        
         
         $dataObj->timeline->internships->events = [];
         $dataObj->timeline->projects->events = [];
 
         
 
-
+        //fetch events
         $eventRes = mysqli_query($this->makeCon(), "SELECT eventID, title, place, category, type, UNIX_TIMESTAMP(time) as time from timeline");
         while ($row = mysqli_fetch_assoc($eventRes)) {
             if($row["type"] === "Internship"){
@@ -120,7 +105,32 @@ class Connection {
     
         }
         
+
+        if($userType === "studentNo"){
+        //fetch coordinator for internships
+        $coordRes = mysqli_query($this->makeCon(), "SELECT name, email FROM admin LIMIT 1");
+        $coordinator = mysqli_fetch_assoc($coordRes);
+
+
+        $dataObj->timeline->internships->coordinator = $coordinator;
+        $dataObj->timeline->projects->groups = [];
         
+        
+        
+        
+        // get group members
+        $groupRes = mysqli_query($this->makeCon(),
+        "SELECT s.studentNo, s.name from student s\n"
+        . "INNER JOIN projectgroups p ON p.leader =s.studentNo OR p.member1 = s.studentNo OR p.member2 = s.studentNo\n"
+        . "WHERE p.groupNo =\n"
+        . "\n"
+        . "(SELECT groupNo FROM `projectgroups` WHERE leader = $userNo or member1 = $userNo or member2 = $userNo)");
+        while ($row = mysqli_fetch_assoc($groupRes)) {
+            array_push($dataObj->timeline->projects->groups, $row);
+        }
+        
+        }
+
         $myJSON = json_encode($dataObj);
 
         return $myJSON;
@@ -174,14 +184,16 @@ class Connection {
                 INNER JOIN internship i on i.internID = p.priorityOne OR i.internID = p.priorityTwo OR i.internID = p.priorityThree
                 WHERE p.studentNo = $studno");
 
-                $projprios = $this->fetchPrio("SELECT p.title, p.projectID as id FROM `projectpriorities` j
-                INNER JOIN projects p on p.projectID = j.priorityOne OR p.projectID = j.priorityTwo OR p.projectID = j.priorityThree 
-                WHERE j.studentNo = $studno");
 
                
-                $row["priorities"] = ["internships" => $internprios, "projects" => $projprios];
+                $row["priorities"] = ["internships" => $internprios];
+                
                 array_push($dataObj->entries->students, $row);  
             }
+
+            
+
+
             $companies = mysqli_query($this->makeCon(), "SELECT name from company");
             while ($row = mysqli_fetch_assoc($companies)) {
                 $name = $row["name"];
@@ -201,8 +213,35 @@ class Connection {
             
             }
 
+            // special handling for when admin filters  by projects @ the student tab;
+            $dataObj->studProjPrio = [];
+
+
+            $studProjectPrio = mysqli_query($this->makeCon(), "SELECT p.groupNo as id, p.leader as leaderNo, s.name as leaderName,
+             pp.priorityOne, pp.priorityTwo, pp.priorityThree FROM
+            `projectgroups` p INNER JOIN `student` s ON
+             s.studentNo = p.leader
+            INNER JOIN `projectpriorities` pp ON pp.groupNo = p.groupNo");
+            
+            
+            while($row = mysqli_fetch_assoc($studProjectPrio)){
+                
+                
+                
+                $row["priorities"] = [["id" => $row["priorityOne"]], ["id" => $row["priorityTwo"]], ["id" => $row["priorityThree"]]];
+                unset($row["priorityOne"]);
+                unset($row["priorityTwo"]);
+                unset($row["priorityThree"]);
+                array_push($dataObj->studProjPrio, $row);
+
+            }
+
             
 
+           
+            
+            
+            
         }
         
         $myJSON = json_encode($dataObj);
@@ -218,7 +257,7 @@ class Connection {
             $newStud = $this->getLast();
             $studNo = $newStud["studentNo"];
             $this->postData("INSERT INTO `internpriorities` (`studentNo`, `priorityOne`, `priorityTwo`, `priorityThree`) VALUES ($studNo, NULL, NULL, NULL)");
-            $this->postData("INSERT INTO `projectpriorities` (`studentNo`, `priorityOne`, `priorityTwo`, `priorityThree`) VALUES ($studNo, NULL, NULL, NULL)");
+           
             
             return $newStud;
             
@@ -232,6 +271,9 @@ class Connection {
         return $row;
            
     }
+
+
+    
 }   
 
 ?>
