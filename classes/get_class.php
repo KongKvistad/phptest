@@ -62,8 +62,10 @@ class Connection {
     public function postData($query) {
         
             if (mysqli_query($this->makeCon(), $query)){    
-                echo "sucess";
-                
+                #echo "sucess";
+                return true;
+            } else {
+                return false;
             }
         
         mysqli_close($this->makeCon());
@@ -107,27 +109,37 @@ class Connection {
         
 
         if($userType === "studentNo"){
-        //fetch coordinator for internships
-        $coordRes = mysqli_query($this->makeCon(), "SELECT name, email FROM admin LIMIT 1");
-        $coordinator = mysqli_fetch_assoc($coordRes);
+            //fetch coordinator for internships
+            $coordRes = mysqli_query($this->makeCon(), "SELECT name, email FROM admin LIMIT 1");
+            $coordinator = mysqli_fetch_assoc($coordRes);
 
 
-        $dataObj->timeline->internships->coordinator = $coordinator;
-        $dataObj->timeline->projects->groups = [];
-        
-        
-        
-        
-        // get group members
-        $groupRes = mysqli_query($this->makeCon(),
-        "SELECT s.studentNo, s.name from student s\n"
-        . "INNER JOIN projectgroups p ON p.leader =s.studentNo OR p.member1 = s.studentNo OR p.member2 = s.studentNo\n"
-        . "WHERE p.groupNo =\n"
-        . "\n"
-        . "(SELECT groupNo FROM `projectgroups` WHERE leader = $userNo or member1 = $userNo or member2 = $userNo)");
-        while ($row = mysqli_fetch_assoc($groupRes)) {
-            array_push($dataObj->timeline->projects->groups, $row);
-        }
+            $dataObj->timeline->internships->coordinator = $coordinator;
+            $dataObj->timeline->projects->groups = [];
+            $dataObj->timeline->projects->isGroup = false;
+            
+            
+            
+            
+            // get group members
+            $groupRes = mysqli_query($this->makeCon(),
+            "SELECT s.studentNo as id, s.email from student s\n"
+            . "INNER JOIN projectgroups p ON p.leader =s.studentNo OR p.member1 = s.studentNo OR p.member2 = s.studentNo\n"
+            . "WHERE p.groupNo =\n"
+            . "\n"
+            . "(SELECT groupNo FROM `projectgroups` WHERE leader = $userNo or member1 = $userNo or member2 = $userNo)\n"
+            ."ORDER BY CASE WHEN p.leader = s.studentNo THEN 0 ELSE 1 END");
+            while ($row = mysqli_fetch_assoc($groupRes)) {
+                array_push($dataObj->timeline->projects->groups, $row);
+            }
+            // if no group exists, serve users own email
+            if(count($dataObj->timeline->projects->groups) == 0 ){
+                $res = $this->fetchData("SELECT studentNo as id, email from student WHERE studentNo = $userNo");
+                array_push($dataObj->timeline->projects->groups, $res);
+                
+            }else {
+                $dataObj->timeline->projects->isGroup = true;
+            }
         
         }
 
@@ -216,12 +228,17 @@ class Connection {
             // special handling for when admin filters  by projects @ the student tab;
             $dataObj->studProjPrio = [];
 
-
+            // REWRITE TO THIS:
+            // SELECT p.groupNo as id, p.leader as leaderNo, s.name as leaderName
+            //  FROM
+            // `projectgroups` p INNER JOIN `student` s ON
+            //  s.studentNo = p.leader
+            
             $studProjectPrio = mysqli_query($this->makeCon(), "SELECT p.groupNo as id, p.leader as leaderNo, s.name as leaderName,
              pp.priorityOne, pp.priorityTwo, pp.priorityThree FROM
             `projectgroups` p INNER JOIN `student` s ON
              s.studentNo = p.leader
-            INNER JOIN `projectpriorities` pp ON pp.groupNo = p.groupNo");
+            LEFT JOIN `projectpriorities` pp ON pp.groupNo = p.groupNo");
             
             
             while($row = mysqli_fetch_assoc($studProjectPrio)){
