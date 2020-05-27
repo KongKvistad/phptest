@@ -118,8 +118,9 @@ class Connection {
             $dataObj->timeline->projects->groups = [];
             $dataObj->timeline->projects->isGroup = false;
             
-            
-            
+            //get groupNo
+
+            //$groupNo = mysqli_query($this->makeCon(), "SELECT")
             
             // get group members
             $groupRes = mysqli_query($this->makeCon(),
@@ -151,7 +152,7 @@ class Connection {
     }
 
     
-    public function getMp($userType){
+    public function getMp($userType, $userNo){
         
         $dataObj = new stdClass();
         $dataObj->entries = new stdClass();
@@ -176,7 +177,9 @@ class Connection {
         
         // admins have access to extra tabs
         if($userType === "employeeNo"){
-            $dataObj->entries->pitched = [];
+            $dataObj->entries->pitched = new stdClass();
+            $dataObj->entries->pitched->internships = [];
+            $dataObj->entries->pitched->projects = [];
             $dataObj->entries->students = [];
             $dataObj->entries->companies = [];
             
@@ -184,10 +187,16 @@ class Connection {
 
             $pitched = mysqli_query($this->makeCon(), "SELECT internID as id, author, companyName, title, startDate, endDate, tags, description, status FROM internship WHERE status = 'Not Approved'");
             while ($row1 = mysqli_fetch_assoc($pitched)) {
-                array_push($dataObj->entries->pitched, $row1);  
+                array_push($dataObj->entries->pitched->internships, $row1);  
                 
         
             }
+            $pitchedproj = mysqli_query($this->makeCon(), "SELECT projectID as id, author, companyName, title, startDate, endDate, tags, description, status FROM projects WHERE status = 'Not Approved'");
+            while ($row2 = mysqli_fetch_assoc($pitchedproj)) {
+                array_push($dataObj->entries->pitched->projects, $row2); 
+            }
+
+
             $students = mysqli_query($this->makeCon(), "SELECT studentNo as id, studyProgramme, name from student");
             while ($row = mysqli_fetch_assoc($students)) {
                 $studno = $row["id"];
@@ -228,11 +237,7 @@ class Connection {
             // special handling for when admin filters  by projects @ the student tab;
             $dataObj->studProjPrio = [];
 
-            // REWRITE TO THIS:
-            // SELECT p.groupNo as id, p.leader as leaderNo, s.name as leaderName
-            //  FROM
-            // `projectgroups` p INNER JOIN `student` s ON
-            //  s.studentNo = p.leader
+            
             
             $studProjectPrio = mysqli_query($this->makeCon(), "SELECT p.groupNo as id, p.leader as leaderNo, s.name as leaderName,
              pp.priorityOne, pp.priorityTwo, pp.priorityThree FROM
@@ -255,11 +260,40 @@ class Connection {
 
             
 
-           
+        
             
-            
+        } elseif ($userType === "name") {
+
+            $dataObj->entries->my_posts = new stdClass();
+            $dataObj->entries->my_posts->internships = [];
+            $dataObj->entries->my_posts->projects = [];
+            $dataObj->entries->my_posts->intActive = false;
+            $dataObj->entries->my_posts->projActive = false;
+
+
+
+            foreach($dataObj->entries->internships as $val){
+                if($val["companyName"] === $userNo){
+                    array_push($dataObj->entries->my_posts->internships, $val);
+                }
+            }
+
+            foreach($dataObj->entries->projects as $val){
+                if($val["companyName"] === $userNo){
+                    array_push($dataObj->entries->my_posts->projects, $val);
+                }
+            }
+
+            $intActive = $this->fetchData("SELECT * FROM makeApply WHERE type = 'internships'")["isActive"];
+
+            $dataObj->entries->my_posts->intActive = $intActive;
+
+            $projActive = $this->fetchData("SELECT * FROM makeApply WHERE type = 'projects'")["isActive"];
+
+            $dataObj->entries->my_posts->projActive = $projActive;
             
         }
+
         
         $myJSON = json_encode($dataObj);
 

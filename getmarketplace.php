@@ -29,7 +29,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     $connect = new Connection;
     
     
-        echo $connect->getMp($userType);
+        echo $connect->getMp($userType, $userNo);
     
     
     

@@ -57,6 +57,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 if($isGroup === NULL ){
                     $connect->postData("INSERT INTO projectgroups (leader, $column) VALUES($userNo, $id)");
+                    $connect->postData("INSERT INTO projectpriorities (groupNo) SELECT groupNo from projectgroups WHERE leader = $userNo");
                     echo json_encode(true);
                     
                 } else {
