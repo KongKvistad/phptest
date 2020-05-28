@@ -215,24 +215,24 @@ class Connection {
             
 
 
-            $companies = mysqli_query($this->makeCon(), "SELECT name from company");
-            while ($row = mysqli_fetch_assoc($companies)) {
-                $name = $row["name"];
+            // $companies = mysqli_query($this->makeCon(), "SELECT name from company");
+            // while ($row = mysqli_fetch_assoc($companies)) {
+            //     $name = $row["name"];
                 
 
-                $projprios = $this->fetchPrio("SELECT s.name, s.studentNo as id FROM `compProjectPrio` c
-                INNER JOIN student s on s.studentNo = c.priorityOne OR s.studentNo = c.priorityTwo OR s.studentNO = c.priorityThree 
-                WHERE c.companyName = '$name'");
+            //     $projprios = $this->fetchPrio("SELECT s.name, s.studentNo as id FROM `compProjectPrio` c
+            //     INNER JOIN student s on s.studentNo = c.priorityOne OR s.studentNo = c.priorityTwo OR s.studentNO = c.priorityThree 
+            //     WHERE c.companyName = '$name'");
 
-                $internprios = $this->fetchPrio("SELECT s.name, s.studentNo as id FROM `compInternPrio` c
-                INNER JOIN student s on s.studentNo = c.priorityOne OR s.studentNo = c.priorityTwo OR s.studentNO = c.priorityThree 
-                WHERE c.companyName = '$name'");
+            //     $internprios = $this->fetchPrio("SELECT s.name, s.studentNo as id FROM `compInternPrio` c
+            //     INNER JOIN student s on s.studentNo = c.priorityOne OR s.studentNo = c.priorityTwo OR s.studentNO = c.priorityThree 
+            //     WHERE c.companyName = '$name'");
 
-                $row["priorities"] = ["internships" => $internprios, "projects" => $projprios];
+            //     $row["priorities"] = ["internships" => $internprios, "projects" => $projprios];
 
-                array_push($dataObj->entries->companies, $row);  
+            //     array_push($dataObj->entries->companies, $row);  
             
-            }
+            // }
 
             // special handling for when admin filters  by projects @ the student tab;
             $dataObj->studProjPrio = [];

@@ -30,11 +30,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if(!$appExist){
         $res = $connect->postData("INSERT INTO intApplications (studentNo, internID, text) VALUES ($userId, $postId, ('$stringified'))");
-        echo $res ? json_encode(true) : json_encode("something went wrong! please check all fields!");
+        echo $res ? json_encode(true) : json_encode("error 1!");
        
     } else {
         $res = $connect->postData("UPDATE intApplications SET text = ('$stringified') WHERE studentNo = $userId AND internID = $postId");
-        echo $res ? json_encode(true) : json_encode("something went wrong! please check all fields!");
+        echo $res ? json_encode(true) : json_encode("error 2!");
     }
     
     
@@ -52,9 +52,12 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     
     $postOrApp = array_values($param)[2];
 
-    if($postOrApp){
+
+    // request is an application
+    if($postOrApp === "true"){
         $res = $connect->fetchData("SELECT * FROM internship WHERE internID = $postId");
         echo json_encode($res);
+        //otherwise
     } else {
         $res = $connect->fetchData("SELECT * FROM intApplications WHERE internID = $postId AND studentNo = $userId");
         echo json_encode($res);

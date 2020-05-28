@@ -54,9 +54,19 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     $dataObj->projects = new stdClass();
 
     $internPrio = $connect->fetchPrio(
-        "SELECT i.title, i.internID as id FROM `internpriorities` p
-        INNER JOIN internship i on i.internID = p.priorityOne OR i.internID = p.priorityTwo OR i.internID = p.priorityThree
-        WHERE p.studentNo = $userNo"
+        "SELECT i.title, i.internID as id, 
+        CASE 
+            WHEN i.internID = p.priorityOne THEN 1
+            WHEN i.internID = p.priorityTwo THEN 2
+            WHEN i.internID = p.priorityThree THEN 3
+            ELSE 'The quantity is under 30'
+        END AS rank
+        FROM `internpriorities` p
+        
+                INNER JOIN internship i on i.internID = p.priorityOne OR i.internID = p.priorityTwo OR i.internID = p.priorityThree
+                WHERE p.studentNo = $userNo
+                
+                ORDER BY RANK"
     );
 
     $dataObj->internships = fillEmpty($internPrio);
@@ -69,9 +79,19 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
 
 
         $projPrio = $connect->fetchPrio(
-            "SELECT p.title, p.projectID as id FROM `projectpriorities` j
-            INNER JOIN projects p on p.projectID = j.priorityOne OR p.projectID = j.priorityTwo OR p.projectID = j.priorityThree 
-            WHERE j.GroupNo = $hasGroup"
+            "SELECT i.title, i.projectID as id, 
+            CASE 
+                WHEN i.projectID = p.priorityOne THEN 1
+                WHEN i.projectID = p.priorityTwo THEN 2
+                WHEN i.projectID = p.priorityThree THEN 3
+                ELSE 'The quantity is under 30'
+            END AS rank
+            FROM `projectpriorities` p
+            
+                    INNER JOIN projects i on i.projectID = p.priorityOne OR i.projectID = p.priorityTwo OR i.projectID = p.priorityThree
+                    WHERE p.groupNo = $hasGroup
+                    
+                    ORDER BY RANK"
         );
 
 
