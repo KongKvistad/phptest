@@ -11,7 +11,7 @@ class Connection {
 
     public function __construct()
     {
-        $this->dbServername = "localhost"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
+        $this->dbServername = "13.48.129.131"; #make localhost if deployed to aws database /  13.48.129.131 if testing locally with aws
         $this->dbUsername = "webproject"; 
         $this->dbPassword = "rootymcroot"; 
         $this->dbName = "webprosjekt2";
@@ -142,6 +142,24 @@ class Connection {
                 $dataObj->timeline->projects->isGroup = true;
             }
         
+        } elseif ($userType === "employeeNo"){
+
+            
+
+            $pitches = $this->fetchData("SELECT COUNT(title) as count FROM `internship` WHERE status = 'Not Approved'");
+            
+            $dataObj->timeline->internships->pitches = $pitches["count"];
+            $dataObj->timeline->projects->pitches = $pitches["count"];
+
+            $countStud = $this->fetchData("SELECT COUNT(studentNo) as count FROM `internpriorities` WHERE priorityOne IS NULL OR priorityTwo IS NULL OR priorityThree IS NULL");
+
+            $dataObj->timeline->internships->studApply = $countStud["count"];
+            $dataObj->timeline->projects->studApply = $countStud["count"];
+
+            $countComp= $this->fetchData("SELECT COUNT(*) FROM (SELECT p.internID FROM `compInternPrio` p RIGHT JOIN internship i on i.internID = p.internID WHERE p.internID IS NULL) as counter");
+
+            $dataObj->timeline->internships->compApply = $countComp["COUNT(*)"];
+            $dataObj->timeline->projects->compApply = $countComp["COUNT(*)"];
         }
 
         $myJSON = json_encode($dataObj);

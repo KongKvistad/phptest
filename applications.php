@@ -22,6 +22,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $appExist = $data["appExist"];
     $postId = $data["postId"];
     $userId = $data["userId"];
+    $postType = $data["postType"];
 
   
 
@@ -32,7 +33,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $res = $connect->postData("INSERT INTO intApplications (studentNo, internID, text) VALUES ($userId, $postId, ('$stringified'))");
         echo $res ? json_encode(true) : json_encode("error 1!");
        
-    } else {
+    }
+    elseif($appExist && $postType === "internships"){
+        $res = $connect->postData("UPDATE internship SET description = ('$stringified')  WHERE internID = $postId");
+        echo $res ? json_encode(true) : json_encode("error 3!");
+    }
+    else {
         $res = $connect->postData("UPDATE intApplications SET text = ('$stringified') WHERE studentNo = $userId AND internID = $postId");
         echo $res ? json_encode(true) : json_encode("error 2!");
     }

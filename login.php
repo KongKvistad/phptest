@@ -31,7 +31,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
     if($type === "reguser"){
-        $match = $connect->fetchData("SELECT contactEmail, contactName, password, name FROM company WHERE contactEmail = '$email'");
+        $match = $connect->fetchData("SELECT contactEmail, contactName, password, name FROM company WHERE contactEmail = '$email' AND password = '$password'");
         if($match === NULL ){
             echo json_encode("no such user!");
         } else{
