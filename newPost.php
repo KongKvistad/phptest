@@ -38,7 +38,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $desc = $data["description"];
     $tags = $data["tags"];
     
-
+    $stringified = json_encode($desc);
 
     function compExists($con, $company){
         $res = $con->fetchData("SELECT * from company WHERE name = '$company'");
@@ -52,11 +52,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     if($userType === "name"){
         if(compExists($connect, $cName)){
             if($postType === "internship"){
-                $res = $connect->postData("INSERT INTO internship (companyName, title, author, startDate, endDate, description, noOfStudents, status, tags, visibility) VALUES ('$cName', '$title', '$author', '$sDate', '$eDate', '$desc', '$noStudent', 'Not Approved', '$tags', '$kh')");
+                $res = $connect->postData("INSERT INTO internship (companyName, title, author, startDate, endDate, description, noOfStudents, status, tags, visibility) VALUES ('$cName', '$title', '$author', '$sDate', '$eDate', ('$stringified'), '$noStudent', 'Not Approved', '$tags', '$kh')");
                 echo $res ? json_encode(true) : json_encode("something went wrong! please check all fields!");
             
             } elseif($postType === "projects"){
-                $res = $connect->postData("INSERT INTO projects (companyName, title, author, startDate, endDate, description,  status, tags, visibility) VALUES ('$cName', '$title', '$author', '$sDate', '$eDate', '$desc', 'Not Approved', '$tags', '$kh')");
+                $res = $connect->postData("INSERT INTO projects (companyName, title, author, startDate, endDate, description,  status, tags, visibility) VALUES ('$cName', '$title', '$author', '$sDate', '$eDate', ('$stringified'), 'Not Approved', '$tags', '$kh')");
                 echo $res ? json_encode(true) : json_encode("something went wrong! please check all fields!");   
             
             } else{
