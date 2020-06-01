@@ -22,7 +22,7 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     $dataObj->companies = [];
     $dataObj->students = [];
 
-    $comp = mysqli_query($connect->makeCon(), "SELECT p.priorities, i.* from internship i LEFT JOIN compInternPrio p on p.internID = i.internID");
+    $comp = mysqli_query($connect->makeCon(), "SELECT p.priorities, i.* from internship i LEFT JOIN compInternPrio p on p.internID = i.internID WHERE i.status = 'Approved'");
 
     while($row = mysqli_fetch_assoc($comp)){
         $row["priorities"] = json_decode($row["priorities"]);

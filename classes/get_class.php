@@ -112,15 +112,36 @@ class Connection {
             //fetch coordinator for internships
             $coordRes = mysqli_query($this->makeCon(), "SELECT name, email FROM admin LIMIT 1");
             $coordinator = mysqli_fetch_assoc($coordRes);
-
-
             $dataObj->timeline->internships->coordinator = $coordinator;
+
+            //fetch poc
+            $pocRes = mysqli_query($this->makeCon(), "SELECT c.contactEmail from company c
+            inner join internship i on i.companyName = c.name
+            WHERE i.internID = (SELECT internshipID from student where studentNo = $userNo)");
+            $poc = mysqli_fetch_assoc($pocRes);
+
+            if($poc["contactEmail"] !== null){
+                $dataObj->timeline->internships->poc = $poc["contactEmail"];
+            } else {
+                $dataObj->timeline->internships->poc = "you have not been assigned an internship yet";
+            }
+            
+            $mentorRes = mysqli_query($this->makeCon(), "SELECT m.email, m.name from mentor m inner join projects p on m.mentorID = p.mentorID WHERE p.groupNo = (SELECT g.groupNo from projectgroups g where g.leader = '$userNo' OR g.member1 = $userNo OR g.member2 = $userNo)");
+            $mentor = mysqli_fetch_assoc($mentorRes);
+             if($mentor["email"] !== null){
+                $dataObj->timeline->projects->mentor = $mentor;
+            } else {
+                $dataObj->timeline->projects->mentor = "you have not been assigned a Mentor";
+            }
+            
+
+
+            
+            
             $dataObj->timeline->projects->groups = [];
             $dataObj->timeline->projects->isGroup = false;
             
-            //get groupNo
-
-            //$groupNo = mysqli_query($this->makeCon(), "SELECT")
+            
             
             // get group members
             $groupRes = mysqli_query($this->makeCon(),
@@ -145,21 +166,27 @@ class Connection {
         } elseif ($userType === "employeeNo"){
 
             
-
+            //aggregate statistics for dashboard
             $pitches = $this->fetchData("SELECT COUNT(title) as count FROM `internship` WHERE status = 'Not Approved'");
-            
             $dataObj->timeline->internships->pitches = $pitches["count"];
-            $dataObj->timeline->projects->pitches = $pitches["count"];
+            
 
             $countStud = $this->fetchData("SELECT COUNT(studentNo) as count FROM `internpriorities` WHERE priorityOne IS NULL OR priorityTwo IS NULL OR priorityThree IS NULL");
-
             $dataObj->timeline->internships->studApply = $countStud["count"];
-            $dataObj->timeline->projects->studApply = $countStud["count"];
+           
 
             $countComp= $this->fetchData("SELECT COUNT(*) FROM (SELECT p.internID FROM `compInternPrio` p RIGHT JOIN internship i on i.internID = p.internID WHERE p.internID IS NULL) as counter");
-
             $dataObj->timeline->internships->compApply = $countComp["COUNT(*)"];
-            $dataObj->timeline->projects->compApply = $countComp["COUNT(*)"];
+            
+
+            $pitchesProj = $this->fetchData("SELECT COUNT(title) as count FROM `projects` WHERE status = 'Not Approved'");
+            $dataObj->timeline->projects->pitches = $pitchesProj["count"];
+
+            $countStudProj = $this->fetchData("SELECT COUNT(groupNo) as count FROM `projectpriorities` WHERE priorityOne IS NULL OR priorityTwo IS NULL OR priorityThree IS NULL");
+            $dataObj->timeline->projects->studApply = $countStudProj["count"];
+
+            $countCompProj= $this->fetchData("SELECT COUNT(*) FROM (SELECT p.projectID FROM `compProjectPrio` p RIGHT JOIN projects i on i.projectID = p.projectID WHERE p.projectID IS NULL) as counter");
+             $dataObj->timeline->projects->compApply = $countCompProj["COUNT(*)"];
         }
 
         $myJSON = json_encode($dataObj);
@@ -178,7 +205,7 @@ class Connection {
         $dataObj->entries->internships = [];
         
         
-        $internships = mysqli_query($this->makeCon(), "SELECT internID as id, author, companyName, title, startDate, endDate, tags, description, status FROM internship WHERE status = 'Approved'");
+        $internships = mysqli_query($this->makeCon(), "SELECT internID as id, author, companyName, title, startDate, endDate, tags, description, status, visibility FROM internship WHERE status = 'Approved'");
         while ($row = mysqli_fetch_assoc($internships)) {
             array_push($dataObj->entries->internships, $row);  
     
@@ -186,7 +213,7 @@ class Connection {
 
         $dataObj->entries->projects = [];
         $projArr = [];
-        $projects = mysqli_query($this->makeCon(), "SELECT projectID as id, author, companyName, title, startDate, endDate, tags, description, status FROM projects WHERE status = 'Approved'");
+        $projects = mysqli_query($this->makeCon(), "SELECT projectID as id, author, companyName, title, startDate, endDate, tags, description, status, visibility FROM projects WHERE status = 'Approved'");
         while ($row1 = mysqli_fetch_assoc($projects)) {
             array_push($dataObj->entries->projects, $row1);  
             
@@ -199,7 +226,9 @@ class Connection {
             $dataObj->entries->pitched->internships = [];
             $dataObj->entries->pitched->projects = [];
             $dataObj->entries->students = [];
-            $dataObj->entries->companies = [];
+            $dataObj->entries->companies = new stdClass();
+            $dataObj->entries->companies->projects = [];
+            $dataObj->entries->companies->internships = [];
             
 
 
@@ -230,27 +259,23 @@ class Connection {
                 array_push($dataObj->entries->students, $row);  
             }
 
-            
-
-
-            // $companies = mysqli_query($this->makeCon(), "SELECT name from company");
-            // while ($row = mysqli_fetch_assoc($companies)) {
-            //     $name = $row["name"];
+            //company overview
+            $companyProj = mysqli_query($this->makeCon(), "SELECT pr.projectID as id, p.priorities, pr.companyName, pr.title FROM `compProjectPrio` p
+            right join projects pr on pr.projectID = p.projectID");
+            while ($row = mysqli_fetch_assoc($companyProj)) {
                 
-
-            //     $projprios = $this->fetchPrio("SELECT s.name, s.studentNo as id FROM `compProjectPrio` c
-            //     INNER JOIN student s on s.studentNo = c.priorityOne OR s.studentNo = c.priorityTwo OR s.studentNO = c.priorityThree 
-            //     WHERE c.companyName = '$name'");
-
-            //     $internprios = $this->fetchPrio("SELECT s.name, s.studentNo as id FROM `compInternPrio` c
-            //     INNER JOIN student s on s.studentNo = c.priorityOne OR s.studentNo = c.priorityTwo OR s.studentNO = c.priorityThree 
-            //     WHERE c.companyName = '$name'");
-
-            //     $row["priorities"] = ["internships" => $internprios, "projects" => $projprios];
-
-            //     array_push($dataObj->entries->companies, $row);  
+                array_push($dataObj->entries->companies->projects, $row);  
+            }
             
-            // }
+            $companyInt = mysqli_query($this->makeCon(), "SELECT i.internID as id, c.priorities, i.companyName, i.title FROM `compInternPrio` c
+            right join internship i on i.internID = c.internID");
+            while ($row = mysqli_fetch_assoc($companyInt)) {
+               
+                array_push($dataObj->entries->companies->internships, $row);  
+            }
+
+
+           
 
             // special handling for when admin filters  by projects @ the student tab;
             $dataObj->studProjPrio = [];
@@ -289,17 +314,15 @@ class Connection {
             $dataObj->entries->my_posts->projActive = false;
 
 
-
-            foreach($dataObj->entries->internships as $val){
-                if($val["companyName"] === $userNo){
-                    array_push($dataObj->entries->my_posts->internships, $val);
-                }
+            $my_int = mysqli_query($this->makeCon(), "SELECT internID as id, author, companyName, title, startDate, endDate, tags, description, status FROM internship WHERE companyName = '$userNo'");
+            while($row = mysqli_fetch_assoc($my_int)){
+                array_push($dataObj->entries->my_posts->internships, $row);
             }
+            
 
-            foreach($dataObj->entries->projects as $val){
-                if($val["companyName"] === $userNo){
-                    array_push($dataObj->entries->my_posts->projects, $val);
-                }
+            $my_proj = mysqli_query($this->makeCon(), "SELECT projectID as id, author, companyName, title, startDate, endDate, tags, description, status FROM projects WHERE companyName = '$userNo'");
+            while($row = mysqli_fetch_assoc($my_proj)){
+                array_push($dataObj->entries->my_posts->projects, $row);
             }
 
             $intActive = $this->fetchData("SELECT * FROM makeApply WHERE type = 'internships'")["isActive"];

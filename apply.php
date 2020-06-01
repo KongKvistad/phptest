@@ -29,9 +29,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
    
     $data = json_decode(file_get_contents('php://input'), true)["data"];
     
-    $prio1 = $data[0]["id"];
-    $prio2 = $data[1]["id"];
-    $prio3 = $data[2]["id"];
+    $prio1 = $data[0]["title"] !== null ? $data[0]["id"] : "NULL";
+    $prio2 = $data[1]["title"] !== null ? $data[1]["id"] : "NULL";
+    $prio3 = $data[2]["title"] !== null ? $data[2]["id"] : "NULL";
      
 
     
@@ -39,7 +39,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     if($res){
         echo json_encode("success");
     } else {
-        echo json_encode($param);
+        echo json_encode($prio3);
     }
  
 

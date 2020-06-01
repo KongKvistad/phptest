@@ -29,13 +29,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $stringified = json_encode($data);
 
 
-    if(!$appExist){
+    if(!$appExist && $postType === "internships"){
         $res = $connect->postData("INSERT INTO intApplications (studentNo, internID, text) VALUES ($userId, $postId, ('$stringified'))");
         echo $res ? json_encode(true) : json_encode("error 1!");
        
     }
     elseif($appExist && $postType === "internships"){
         $res = $connect->postData("UPDATE internship SET description = ('$stringified')  WHERE internID = $postId");
+        echo $res ? json_encode(true) : json_encode("error 3!");
+    }
+    elseif($appExist && $postType === "projects"){
+        $res = $connect->postData("UPDATE projects SET description = ('$stringified')  WHERE projectID = $postId");
         echo $res ? json_encode(true) : json_encode("error 3!");
     }
     else {
@@ -57,14 +61,23 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     $postId = array_values($param)[1];
     
     $postOrApp = array_values($param)[2];
+    $type = array_values($param)[3];
 
 
-    // request is an application
+    // request is a post
     if($postOrApp === "true"){
-        $res = $connect->fetchData("SELECT * FROM internship WHERE internID = $postId");
-        echo json_encode($res);
+        if($type === "internships"){
+            $res = $connect->fetchData("SELECT * FROM internship WHERE internID = $postId");
+            echo json_encode($res);
+        } else {
+            $res = $connect->fetchData("SELECT * FROM projects WHERE projectID = $postId");
+            echo json_encode($res);
+        }
+        
         //otherwise
     } else {
+
+        
         $res = $connect->fetchData("SELECT * FROM intApplications WHERE internID = $postId AND studentNo = $userId");
         echo json_encode($res);
     }
