@@ -24,19 +24,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $data["email"];
     $password = $data["password"];
 
-    function passCorrect($pass, $obj){
-        return $pass === $obj["password"] ? true : false;
-            
-    }
+    
+
+    
 
 
     if($type === "reguser"){
-        $match = $connect->fetchData("SELECT contactEmail, contactName, password, name FROM company WHERE contactEmail = '$email' AND password = '$password'");
+        $match = $connect->fetchData("SELECT contactEmail, contactName, password, name FROM company WHERE contactEmail = '$email'");
         if($match === NULL ){
             echo json_encode("no such user!");
         } else{
             $token = genToken($match);
-            echo passCorrect($password, $match) ? json_encode(["token" => $token]) : "false";
+            echo password_verify($password, $match["password"]) ? json_encode(["token" => $token]) : "false";
         }
 
     }elseif ($type === "employeeNo") {
@@ -45,7 +44,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             echo json_encode("no such user!");
         } else{
             $token = genToken($match);
-            echo passCorrect($password, $match) ? json_encode(["token" => $token]) : "false";
+            echo password_verify($password, $match["password"]) ? json_encode(["token" => $token]) : "false";
             
         }
     }

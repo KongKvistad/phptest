@@ -14,10 +14,11 @@ header("Content-Type: application/json; charset=UTF-8");
 if($_SERVER["REQUEST_METHOD"] == "GET") {
     
     $param = urldecode($_SERVER['QUERY_STRING']);
-   
+    
+    $pass = password_hash("ntnu123", PASSWORD_BCRYPT);
     
     $connect = new Connection;
-    $query = "INSERT INTO student (`name`, `email`, `studyProgramme`, `password`) VALUES ('testperson', '$param', 'BWU', 'student')";
+    $query = "INSERT INTO student (`name`, `email`, `studyProgramme`, `password`) VALUES ('testperson', '$param', 'BWU', '$pass')";
     $returnedRow = $connect->newStud($query);
     
     print_r($returnedRow);
