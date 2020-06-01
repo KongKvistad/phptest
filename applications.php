@@ -23,28 +23,29 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $postId = $data["postId"];
     $userId = $data["userId"];
     $postType = $data["postType"];
+    $isApplication = $data["isApplication"];
 
   
 
     $stringified = json_encode($data);
 
 
-    if(!$appExist && $postType === "internships"){
+    if(!$appExist && $postType === "internships" && $isApplication){
         $res = $connect->postData("INSERT INTO intApplications (studentNo, internID, text) VALUES ($userId, $postId, ('$stringified'))");
         echo $res ? json_encode(true) : json_encode("error 1!");
        
     }
-    elseif($appExist && $postType === "internships"){
+    elseif($appExist && $postType === "internships" && $isApplication === false){
         $res = $connect->postData("UPDATE internship SET description = ('$stringified')  WHERE internID = $postId");
-        echo $res ? json_encode(true) : json_encode("error 3!");
+        echo $res ? json_encode(true) : json_encode("error 2!");
     }
-    elseif($appExist && $postType === "projects"){
+    elseif($appExist && $postType === "projects" && $isApplication === false){
         $res = $connect->postData("UPDATE projects SET description = ('$stringified')  WHERE projectID = $postId");
         echo $res ? json_encode(true) : json_encode("error 3!");
     }
-    else {
+    elseif($appExist && $postType === "internships" && $isApplication) {
         $res = $connect->postData("UPDATE intApplications SET text = ('$stringified') WHERE studentNo = $userId AND internID = $postId");
-        echo $res ? json_encode(true) : json_encode("error 2!");
+        echo $res ? json_encode(true) : json_encode("error 4!");
     }
     
     
