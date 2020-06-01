@@ -42,9 +42,9 @@ if($_SERVER["REQUEST_METHOD"] == "GET") {
     
 
     $token = genToken($returnedRow);
-    sendToken($token, $returnedRow);
+    //sendToken($token, $returnedRow);
     
-    print_r($returnedRow);
+    print_r($token);
    
 }
 
